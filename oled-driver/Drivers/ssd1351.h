@@ -14,7 +14,10 @@ namespace Display
 		public:
 			SSD1351(const Serial::ISerial& serial, uint8_t width, uint8_t height);
 
-			void FillRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint16_t color) const;
+			void DrawPixel(uint8_t x, uint8_t y, uint16_t color) const override;
+
+			void FillRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint16_t color) const override;
+			void SetCursor(uint8_t x, uint8_t y) const;
 
 			void EnableDisplay() const;
 			void DisableDisplay() const;
@@ -47,6 +50,7 @@ namespace Display
 			void WriteCommand(uint8_t command, uint8_t param) const;
 			void WriteCommand(uint8_t command, const uint8_t* params, uint8_t len) const;
 			void WriteData(uint8_t data) const;
+			void WriteData(uint16_t data) const;
 			void WriteData(const uint8_t* data, uint8_t len) const;
 		};
 	}

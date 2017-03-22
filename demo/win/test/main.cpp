@@ -57,34 +57,8 @@ void PacketSerial::Flush() const
 	m_Serial.Flush();
 }
 
-bool Command(const ISerial& serial, uint8_t command)
-{
-	const char buf[] = { 0x00, command };
-	if (serial.Send(buf, sizeof(buf)) < 2)
-		return false;
-
-	char x[32];
-	int n = serial.Receive(x, sizeof(x));
-
-	return n != -1;
-}
-
-bool Data(const ISerial& serial, uint8_t data)
-{
-	const char buf[] = { 0x01, data };
-	if (serial.Send(buf, sizeof(buf)) < 2)
-		return false;
-
-	char x[32];
-	int n = serial.Receive(x, sizeof(x));
-
-	return n != -1;
-}
-
 int main()
 {
-	cout << "test" << endl;
-
 	WindowsSerialPort serialPort(COM_PORT);
 
 	if (!serialPort.Open())
@@ -102,6 +76,9 @@ int main()
 	PacketSerial packetSerial(serialPort);
 
 	SSD1351 display(packetSerial, 128, 96);
+	//display.FillRectangle(0, 0, 128, 96, 0x001F);
+	display.DrawPixel(25, 25, 0xFFFF);
+	//display.FillRectangle(50, 50, 50, 50, 0xFFFF);
 
 	return 0;
 }

@@ -7,12 +7,16 @@ namespace Display
 	{
 	}
 
-	int8_t Graphics::GetWidth() const
+	void Graphics::FillRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint16_t color) const
+	{
+	}
+
+	uint8_t Graphics::GetWidth() const
 	{
 		return m_Width;
 	}
 
-	int8_t Graphics::GetHeight() const
+	uint8_t Graphics::GetHeight() const
 	{
 		return m_Height;
 	}

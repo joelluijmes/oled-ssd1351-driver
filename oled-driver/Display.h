@@ -10,9 +10,13 @@ namespace Display
 	{
 	public:
 		Graphics(uint8_t width, uint8_t height);
+		virtual ~Graphics() = default;
 
-		int8_t GetWidth() const;
-		int8_t GetHeight() const;
+		virtual void DrawPixel(uint8_t x, uint8_t y, uint16_t color) const = 0;
+		virtual void FillRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint16_t color) const = 0;
+
+		uint8_t GetWidth() const;
+		uint8_t GetHeight() const;
 
 	private:
 

@@ -29,9 +29,9 @@ namespace Display
 			// Vertical scroll by ram
 			SetVerticalScrollByRAM(0x00);
 			// Vertical scroll by row
-			SetVerticalScrollByRow(0x00);
+			SetVerticalScrollByRow(0x60); 
 			// Remap & Color Depth
-			SetRemapAndColorDepth(0xB4);
+			SetRemapAndColorDepth(0x74);
 			// GPIO
 			SetGPIO(0x00);
 			// Funciton Select
@@ -54,6 +54,16 @@ namespace Display
 			EnableDisplay();
 		}
 
+		void SSD1351::DrawPixel(uint8_t x, uint8_t y, uint16_t color) const
+		{
+			assert(x < GetWidth());
+			assert(y < GetHeight());
+
+			SetCursor(x, y);
+			SetWriteRAM();
+			WriteData(color);
+		}
+
 		void SSD1351::FillRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint16_t color) const
 		{
 			assert(x < GetWidth());
@@ -70,9 +80,16 @@ namespace Display
 			SetWriteRAM();
 
 			for (uint16_t i = 0; i < width*height; ++i)
-			{
-				
-			}
+				WriteData(color);
+		}
+
+		void SSD1351::SetCursor(uint8_t x, uint8_t y) const
+		{
+			assert(x < GetWidth());
+			assert(y < GetHeight());
+
+			SetColumn(x, GetWidth() - 1);
+			SetRow(y, GetHeight() - 1);
 		}
 
 		void SSD1351::EnableDisplay() const
@@ -198,7 +215,7 @@ namespace Display
 		{
 			char buf[8];
 
-			const char commandBuffer[] = { 0x00, command };
+			const char commandBuffer[] = { 0x00, static_cast<char>(command) };
 			if (m_Serial.Send(commandBuffer, sizeof(commandBuffer)) < 2)
 				return;
 			m_Serial.Receive(buf, sizeof(buf));
@@ -212,6 +229,17 @@ namespace Display
 		void SSD1351::WriteData(uint8_t data) const
 		{
 			WriteData(&data, 1);
+		}
+
+		void SSD1351::WriteData(uint16_t data) const
+		{
+			uint8_t param[] =
+			{
+				static_cast<uint8_t>((data >> 8) & 0xFF),
+				static_cast<uint8_t>(data & 0xFF)
+			};
+
+			WriteData(param, 2);
 		}
 
 		void SSD1351::WriteData(const uint8_t* data, uint8_t len) const
