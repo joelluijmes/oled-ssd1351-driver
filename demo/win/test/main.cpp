@@ -83,6 +83,8 @@ bool Data(const ISerial& serial, uint8_t data)
 
 int main()
 {
+	cout << "test" << endl;
+
 	WindowsSerialPort serialPort(COM_PORT);
 
 	if (!serialPort.Open())

@@ -17,57 +17,184 @@ namespace Display
 			: Graphics(width, height), m_Serial(serial)
 		{
 			// Command lock
-			Command(0xFD, 0x12);
+			SetLock(0x12);
 			// Command lock
-			Command(0xFD, 0xB1);
+			SetLock(0xB1);
 			// Sleep mode
-			Command(0xAE);
+			DisableDisplay();
 			// Set display clock divide ratio
-			Command(0xB3, 0xF1);
+			SetDivideRatio(0xF1);
 			// Multiplex ratio
-			Command(0xCA, 0x5F);
+			SetMultiplexRatio(0x5F);
 			// Vertical scroll by ram
-			Command(0xA2, 0x00);
+			SetVerticalScrollByRAM(0x00);
 			// Vertical scroll by row
-			Command(0xA1, 0x00);
+			SetVerticalScrollByRow(0x00);
 			// Remap & Color Depth
-			Command(0xA0, 0xB4);
+			SetRemapAndColorDepth(0xB4);
 			// GPIO
-			Command(0xB5, 0x00);
+			SetGPIO(0x00);
 			// Funciton Select
-			Command(0xAB, 0x01);
+			SetFunctionSelect(0x01);
 			// Phase length
-			Command(0xB1, 0x32);
+			SetPhaseLength(0x32);
 			// VCOMH Voltage
-			Command(0xBE, 0x05);
+			SetVCOMH(0x05);
 			// Display mode
-			Command(0xA6);
+			SetNormalDisplayMode();
 			// Contract current
-			uint8_t contractParam[] = { 0xC8, 0x80, 0xC8 };
-			Command(0xC1, contractParam, sizeof(contractParam));
+			SetContrast(0xC8, 0x80, 0xC8);
 			// Master current
-			Command(0xC7, 0x0F);
+			SetMasterContrast(0x0F);
 			// Setvsl
-			uint8_t vslParam[] = { 0xA0, 0xB5, 0x55 };
-			Command(0xB4, vslParam, sizeof(vslParam));
+			SetVSL(0xA0, 0xB0, 0x55);
 			// precharge 2nd
-			Command(0xB6, 0x01);
+			SetSecondPreCharge(0x01);
 			// wakeup
-			Command(0xAF);
+			EnableDisplay();
 		}
 
-
-		void SSD1351::Command(uint8_t command) const
+		void SSD1351::FillRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint16_t color) const
 		{
-			Command(command, NULL, 0);
+			assert(x < GetWidth());
+			assert(y < GetHeight());
+
+			// set bounds
+			if (x + width > GetWidth())
+				width = GetWidth() - x - 1;
+			if (y + width > GetHeight())
+				height = GetHeight() - y - 1;
+
+			SetColumn(x, x + width - 1);
+			SetRow(y, y + height - 1);
+			SetWriteRAM();
+
+			for (uint16_t i = 0; i < width*height; ++i)
+			{
+				
+			}
 		}
 
-		void SSD1351::Command(uint8_t command, uint8_t param) const
+		void SSD1351::EnableDisplay() const
 		{
-			Command(command, &param, 1);
+			WriteCommand(0xAF);
 		}
 
-		void SSD1351::Command(uint8_t command, const uint8_t* params, uint8_t len) const
+		void SSD1351::DisableDisplay() const
+		{
+			WriteCommand(0xAE);
+		}
+		
+		void SSD1351::SetColumn(uint8_t start, uint8_t end) const
+		{
+			uint8_t param[] = { start, end };
+			WriteCommand(0x15, param, sizeof(param));
+		}
+
+		void SSD1351::SetRow(uint8_t start, uint8_t end) const
+		{
+			uint8_t param[] = { start, end };
+			WriteCommand(0x75, param, sizeof(param));
+		}
+
+		void SSD1351::SetWriteRAM() const
+		{
+			WriteCommand(0x5C);
+		}
+
+		void SSD1351::SetReadRAM() const
+		{
+			WriteCommand(0x5D);
+		}
+
+		void SSD1351::SetLock(uint8_t lock) const
+		{
+			WriteCommand(0xFD, lock);
+		}
+
+		void SSD1351::SetDivideRatio(uint8_t ratio) const
+		{
+			WriteCommand(0xB3, ratio);
+		}
+
+		void SSD1351::SetMultiplexRatio(uint8_t ratio) const
+		{
+			WriteCommand(0xCA, ratio);
+		}
+
+		void SSD1351::SetVerticalScrollByRAM(uint8_t scroll) const
+		{
+			WriteCommand(0xA2, 0x00);
+		}
+
+		void SSD1351::SetVerticalScrollByRow(uint8_t scroll) const
+		{
+			WriteCommand(0xA1, 0x00);
+		}
+
+		void SSD1351::SetRemapAndColorDepth(uint8_t param) const
+		{
+			WriteCommand(0xA0, param);
+		}
+
+		void SSD1351::SetGPIO(uint8_t param) const
+		{
+			WriteCommand(0xB5, param);
+		}
+
+		void SSD1351::SetFunctionSelect(uint8_t param) const
+		{
+			WriteCommand(0xAB, param);
+		}
+
+		void SSD1351::SetPhaseLength(uint8_t param) const
+		{
+			WriteCommand(0xB1, param);
+		}
+
+		void SSD1351::SetVCOMH(uint8_t param) const
+		{
+			WriteCommand(0xBE, param);
+		}
+
+		void SSD1351::SetNormalDisplayMode() const
+		{
+			WriteCommand(0xA6);
+		}
+
+		void SSD1351::SetContrast(uint8_t colorA, uint8_t colorB, uint8_t colorC) const
+		{
+			uint8_t param[] = { colorA, colorB, colorC };
+			WriteCommand(0xC1, param, sizeof(param));
+		}
+
+		void SSD1351::SetMasterContrast(uint8_t contrast) const
+		{
+			WriteCommand(0xC7, contrast);
+		}
+
+		void SSD1351::SetVSL(uint8_t colorA, uint8_t colorB, uint8_t colorC) const
+		{
+			uint8_t param[] = { colorA, colorB, colorC };
+			WriteCommand(0xB4, param, sizeof(param));
+		}
+
+		void SSD1351::SetSecondPreCharge(uint8_t period) const
+		{
+			WriteCommand(0xB6, period);
+		}
+
+		void SSD1351::WriteCommand(uint8_t command) const
+		{
+			WriteCommand(command, NULL, 0);
+		}
+
+		void SSD1351::WriteCommand(uint8_t command, uint8_t param) const
+		{
+			WriteCommand(command, &param, 1);
+		}
+
+		void SSD1351::WriteCommand(uint8_t command, const uint8_t* params, uint8_t len) const
 		{
 			char buf[8];
 
@@ -79,12 +206,23 @@ namespace Display
 			if (!params || len < 1)
 				return;
 
+			WriteData(params, len);
+		}
+
+		void SSD1351::WriteData(uint8_t data) const
+		{
+			WriteData(&data, 1);
+		}
+
+		void SSD1351::WriteData(const uint8_t* data, uint8_t len) const
+		{
+			char buf[8];
+
 			buf[0] = 0x01;
-			memcpy(buf, params + 1, len);
-			char enableData = 1;
+			memcpy(buf + 1, data, len);
+
 			m_Serial.Send(buf, len + 1);
 			m_Serial.Receive(buf, sizeof(buf));
 		}
-
 	}
 }

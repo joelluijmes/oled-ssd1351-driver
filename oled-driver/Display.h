@@ -11,6 +11,9 @@ namespace Display
 	public:
 		Graphics(uint8_t width, uint8_t height);
 
+		int8_t GetWidth() const;
+		int8_t GetHeight() const;
+
 	private:
 
 		uint8_t m_Width;
