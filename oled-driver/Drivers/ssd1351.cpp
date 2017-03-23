@@ -108,6 +108,21 @@ namespace Display
 				WriteData(color);
 		}
 
+		void SSD1351::DrawHorizontalLine(uint8_t x, uint8_t y, uint8_t width, uint16_t color) const
+		{
+			assert(x < GetWidth());
+			assert(y < GetHeight());
+
+			// set bounds
+			if (x + width > GetWidth())
+				width = GetWidth() - x - 1;
+			assert(width > 0);
+
+			SetArea(x, y, width, 0);
+			for (uint16_t i = 0; i < width; ++i)
+				WriteData(color);
+		}
+
 		void SSD1351::SetCursor(uint8_t x, uint8_t y) const
 		{
 			assert(x < GetWidth());
@@ -115,6 +130,13 @@ namespace Display
 
 			SetColumn(x, GetWidth() - 1);
 			SetRow(y, GetHeight() - 1);
+		}
+
+		void SSD1351::SetArea(uint8_t x, uint8_t y, uint8_t width, uint8_t height) const
+		{
+			SetColumn(x, x + width);
+			SetRow(y, y + height);
+			SetWriteRAM();
 		}
 
 		void SSD1351::EnableDisplay() const

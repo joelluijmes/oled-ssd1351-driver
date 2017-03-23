@@ -17,7 +17,9 @@ namespace Display
 			void DrawPixel(uint8_t x, uint8_t y, uint16_t color) const override;
 
 			void FillRectangle(uint8_t x, uint8_t y, uint8_t width, uint8_t height, uint16_t color) const override;
+			void DrawHorizontalLine(uint8_t x, uint8_t y, uint8_t width, uint16_t color) const;
 			void SetCursor(uint8_t x, uint8_t y) const;
+			void SetArea(uint8_t x, uint8_t y, uint8_t width, uint8_t height) const;
 
 			void EnableDisplay() const;
 			void DisableDisplay() const;

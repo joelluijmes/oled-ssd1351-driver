@@ -80,7 +80,7 @@ int main()
 	display.FillRectangle(0, 0, 10, 10, 0x001F);
 	display.DrawPixel(4, 4, 0xFFFF);
 	display.DrawPixel(5, 5, 0xFFFF);
-	display.DrawPixel(6, 6, 0xFFFF);
+	display.DrawHorizontalLine(0, 7, 120, 0x1F00);
 
 	return 0;
 }
