@@ -123,6 +123,21 @@ namespace Display
 				WriteData(color);
 		}
 
+		void SSD1351::DrawVerticalLine(uint8_t x, uint8_t y, uint8_t height, uint16_t color) const
+		{
+			assert(x < GetWidth());
+			assert(y < GetHeight());
+
+			// set bounds
+			if (y + height > GetWidth())
+				height = GetWidth() - y - 1;
+			assert(height > 0);
+
+			SetArea(x, y, 0, height);
+			for (uint16_t i = 0; i < height; ++i)
+				WriteData(color);
+		}
+
 		void SSD1351::SetCursor(uint8_t x, uint8_t y) const
 		{
 			assert(x < GetWidth());

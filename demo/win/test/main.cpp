@@ -81,6 +81,7 @@ int main()
 	display.DrawPixel(4, 4, 0xFFFF);
 	display.DrawPixel(5, 5, 0xFFFF);
 	display.DrawHorizontalLine(0, 7, 120, 0x1F00);
+	display.DrawVerticalLine(20, 7, 90, 0x1F0F);
 
 	return 0;
 }
