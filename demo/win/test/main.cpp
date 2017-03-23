@@ -76,9 +76,11 @@ int main()
 	PacketSerial packetSerial(serialPort);
 
 	SSD1351 display(packetSerial, 128, 96);
-	//display.FillRectangle(0, 0, 128, 96, 0x001F);
-	display.DrawPixel(25, 25, 0xFFFF);
-	//display.FillRectangle(50, 50, 50, 50, 0xFFFF);
+	display.FillRectangle(0, 0, 20, 20, 0);
+	display.FillRectangle(0, 0, 10, 10, 0x001F);
+	display.DrawPixel(4, 4, 0xFFFF);
+	display.DrawPixel(5, 5, 0xFFFF);
+	display.DrawPixel(6, 6, 0xFFFF);
 
 	return 0;
 }

@@ -6,6 +6,31 @@
 
 namespace
 {
+	const uint8_t LOCK_UNLOCK_OLED = 0x12;
+	const uint8_t LOCK_OLED = 0x16;
+	const uint8_t LOCK_COMMANDS_INACCESSIBLE = 0xB0;
+	const uint8_t LOCK_COMMANDS_ACCESSIBLE = 0xB1;
+
+	const uint8_t REMAP_HORIZONTAL_INCREMENT = 0x00;
+	const uint8_t REMAP_VERTICAL_INCREMENT = 0x01;
+	const uint8_t REMAP_COL0_MAPPED_TO_SEG0 = 0x00;
+	const uint8_t REMAP_COL127_MAPPED_T_SEG0 = 0x02;
+	const uint8_t REMAP_COLOR_ABC = 0x00;
+	const uint8_t REMAP_COLOR_CBA = 0x04;
+	const uint8_t REMAP_SCAN_FRONT_TO_BACK = 0x00;
+	const uint8_t REMAP_SCAN_BACK_TO_FRONT = 0x10;
+	const uint8_t REMAP_DISABLE_COM_SPLIT = 0x00;
+	const uint8_t REMAP_ENABLE_COM_SPLIT = 0x20;
+	const uint8_t REMAP_COLOR_256 = 0x00;
+	const uint8_t REMAP_COLOR_65K = 0x40;
+	const uint8_t REMAP_COLOR_262K_FIRST = 0x80;
+	const uint8_t REMAP_COLOR_262K_SECOND = 0xC0;
+
+	const uint8_t FUNCTION_EXT_VDD = 0x00;
+	const uint8_t FUNCTION_INT_VDD = 0x01;
+	const uint8_t FUNCTION_8BIT_INTERFACE = 0x00;
+	const uint8_t FUNCTION_16BIT_INTERFACE = 0x80;
+	const uint8_t FUNCTION_18BIT_INTERFACE = 0xC0;
 }
 
 namespace Display
@@ -17,27 +42,27 @@ namespace Display
 			: Graphics(width, height), m_Serial(serial)
 		{
 			// Command lock
-			SetLock(0x12);
+			SetLock(LOCK_UNLOCK_OLED);
 			// Command lock
-			SetLock(0xB1);
+			SetLock(LOCK_COMMANDS_ACCESSIBLE);
 			// Sleep mode
 			DisableDisplay();
 			// Set display clock divide ratio
-			SetDivideRatio(0xF1);
+			SetDivideRatio(0x01, 0x0F);
 			// Multiplex ratio
 			SetMultiplexRatio(0x5F);
 			// Vertical scroll by ram
-			SetVerticalScrollByRAM(0x00);
+			SetDisplayOffset(0x00);
 			// Vertical scroll by row
-			SetVerticalScrollByRow(0x60); 
+			SetDisplayStartLine(0x60); 
 			// Remap & Color Depth
-			SetRemapAndColorDepth(0x74);
+			SetRemapAndColorDepth(REMAP_COLOR_65K | REMAP_COLOR_CBA | REMAP_SCAN_BACK_TO_FRONT | REMAP_ENABLE_COM_SPLIT); // adafruit: 0x74?
 			// GPIO
 			SetGPIO(0x00);
 			// Funciton Select
-			SetFunctionSelect(0x01);
+			SetFunctionSelect(FUNCTION_INT_VDD | FUNCTION_8BIT_INTERFACE);
 			// Phase length
-			SetPhaseLength(0x32);
+			SetPhaseLength(0x02, 0x03);
 			// VCOMH Voltage
 			SetVCOMH(0x05);
 			// Display mode
@@ -129,23 +154,33 @@ namespace Display
 			WriteCommand(0xFD, lock);
 		}
 
-		void SSD1351::SetDivideRatio(uint8_t ratio) const
+		void SSD1351::SetDivideRatio(uint8_t divider, uint8_t frequency) const
 		{
-			WriteCommand(0xB3, ratio);
+			assert(divider <= 0x0F);
+			assert(frequency <= 0x0F);
+
+			WriteCommand(0xB3, frequency << 4 | divider);
 		}
 
 		void SSD1351::SetMultiplexRatio(uint8_t ratio) const
 		{
+			assert(ratio >= 15);
+			assert(ratio <= 127);
+
 			WriteCommand(0xCA, ratio);
 		}
 
-		void SSD1351::SetVerticalScrollByRAM(uint8_t scroll) const
+		void SSD1351::SetDisplayOffset(uint8_t scroll) const
 		{
+			assert(scroll <= 127);
+			
 			WriteCommand(0xA2, 0x00);
 		}
 
-		void SSD1351::SetVerticalScrollByRow(uint8_t scroll) const
+		void SSD1351::SetDisplayStartLine(uint8_t scroll) const
 		{
+			assert(scroll <= 127);
+
 			WriteCommand(0xA1, 0x00);
 		}
 
@@ -164,19 +199,41 @@ namespace Display
 			WriteCommand(0xAB, param);
 		}
 
-		void SSD1351::SetPhaseLength(uint8_t param) const
+		void SSD1351::SetPhaseLength(uint8_t phase1, uint8_t phase2) const
 		{
-			WriteCommand(0xB1, param);
+			assert(phase1 > 1);
+			assert(phase1 < 16);
+			assert(phase2 > 2);
+			assert(phase2 < 16);
+
+			WriteCommand(0xB1, phase2 << 4 | phase1);
 		}
 
 		void SSD1351::SetVCOMH(uint8_t param) const
 		{
+			assert(param < 8);
+
 			WriteCommand(0xBE, param);
+		}
+
+		void SSD1351::SetOffDisplayMode() const
+		{
+			WriteCommand(0xA4);
+		}
+
+		void SSD1351::SetOnDisplayMode() const
+		{
+			WriteCommand(0xA5);
 		}
 
 		void SSD1351::SetNormalDisplayMode() const
 		{
 			WriteCommand(0xA6);
+		}
+
+		void SSD1351::SetInverseDisplayMode() const
+		{
+			WriteCommand(0xA7);
 		}
 
 		void SSD1351::SetContrast(uint8_t colorA, uint8_t colorB, uint8_t colorC) const

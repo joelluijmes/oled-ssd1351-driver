@@ -8,8 +8,8 @@ project(${TARGET} CXX)
 # Source and header files to build
 set(
     SOURCES
-	"Graphics.h"
-	"Graphics.cpp"
+	"Display.h"
+	"Display.cpp"
 	"Drivers/ssd1351.h"
 	"Drivers/ssd1351.cpp"
     "Serial/ISerial.h"
